@@ -3,6 +3,8 @@ import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;
 import flash.display.MovieClip;
 import flash.display.Sprite;
+import flash.geom.Point;
+import ld30.core.NumUtils;
 
 /**
  * ...
@@ -10,57 +12,134 @@ import flash.display.Sprite;
  */
 class World extends Sprite
 {
-	public var builded(default, default):Bool = false;
+	private static inline var _ITEM_MI_SIZE:Float = 12;
 	
-	var _entitiesGround:Array<DisplayObject> = [];
-	var _entitiesItem:Array<DisplayObject> = [];
-	var _spawnPoint:DisplayObject;
+	public var builded(default, null):Bool = false;
 	
-	public var active(default, default):Player;
+	public var entitiesGround(default, null):Array<DisplayObject> = [];
+	public var entitiesItem(default, null):Array<DisplayObject> = [];
+	public var spawnPoint(default, null):DisplayObject;
 	
-	private var _cellX:Int;
-	private var _cellY:Int;
-	private var _cellW:Int;
-	private var _cellH:Int;
+	public var columns(default, null):Int;
+	public var lines(default, null):Int;
+	
+	var _cellW:Int;
+	var _cellH:Int;
+	
+	public var w(default, default):Int;
+	public var h(default, default):Int;
 	
 	public function new( bg:DisplayObjectContainer, cellX:Int = 2, cellY:Int = 2, cellW:Int = 320, cellH:Int = 320 ) 
 	{
 		super();
-		_cellX = cellX;
-		_cellY = cellY;
+		columns = cellX;
+		lines = cellY;
 		_cellW = cellW;
 		_cellH = cellH;
+		w = cellX * cellW;
+		h = cellY * cellH;
 		addWorldPart( bg );
 	}	
+	
+	public function hitTest( player:Player ):Array<DisplayObject>
+	{
+		var l:Array<DisplayObject> = [];
+		var ha:DisplayObject = player.boundingBox;
+		
+		var fromTop:Float = 0;
+		var fromBottom:Float = 0;
+		var fromLeft:Float = 0;
+		var fromRight:Float = 0;
+		
+		var aDelta:Point = new Point();
+		var bDelta:Point = new Point();
+		var min:Float;
+		var p:Point;
+		for ( e in entitiesGround )
+		{
+			if ( ha.hitTestObject( e ) )
+			{
+				//deltaEdge.x = //(player.x < e.x) ?  : ;
+				
+				// a in top left of b
+				aDelta.x = _ITEM_MI_SIZE;
+				aDelta.y = _ITEM_MI_SIZE;
+				bDelta.x = -_ITEM_MI_SIZE;
+				bDelta.y = -_ITEM_MI_SIZE;
+				p = NumUtils.globalDelta( ha, e, aDelta, bDelta );
+				fromTop = p.y;
+				fromLeft = p.x;
+				
+				// a in bottom right of b
+				aDelta.x = -_ITEM_MI_SIZE;
+				aDelta.y = -_ITEM_MI_SIZE;
+				bDelta.x = _ITEM_MI_SIZE;
+				bDelta.y = _ITEM_MI_SIZE;
+				p = NumUtils.globalDelta( ha, e, aDelta, bDelta );
+				fromBottom = p.y;
+				fromRight = p.x;
+				
+				min = Math.min( Math.min( fromTop, fromBottom ), Math.min( fromLeft, fromRight ) );
+				
+				switch( min )
+				{
+					case fromTop :
+					case fromLeft :
+					case fromBottom :
+					case fromRight :
+				}
+				
+				/*if ( Math.abs(player.vY) > Math.abs(player.vX) )
+				{
+					if ( player.vY > 0 )
+					{
+						NumUtils.moveAtoB( player, e, new Point(0, -_ITEM_MI_SIZE), false, true );
+						player.onGround = true;
+					}
+					else
+					{
+						NumUtils.moveAtoB( player, e, new Point(0, player.height+_ITEM_MI_SIZE), false, true );
+					}
+					player.vY = 0;
+				}
+				else
+				{
+					if ( player.vX > 0 )
+					{
+						NumUtils.moveAtoB( player, e, new Point( -(player.width * 0.5 + _ITEM_MI_SIZE), 0 ), true, false );
+					}
+					else
+					{
+						NumUtils.moveAtoB( player, e, new Point( _ITEM_MI_SIZE + player.width * 0.5, 0 ), true, false );
+					}
+					player.vX = 0;
+				}*/
+			}
+		}
+		for ( e in entitiesItem )
+		{
+			if ( ha.hitTestObject( e ) )
+			{
+				//l.push
+			}
+		}
+		return l;
+	}
 	
 	public function addWorldPart( worldPart:DisplayObjectContainer, i:Int = 0, j:Int = 0 ):Void
 	{
 		if ( builded ) throw "can't add world part after building world";
 		worldPart.x = i * _cellW;
 		worldPart.y = j * _cellH;
+		worldPart.scaleX = worldPart.scaleY = 1;
 		addChild( worldPart );
-	}
-	
-	public function removeWorldPart( worldPart:MovieClip ):MovieClip
-	{
-		if ( builded ) throw "can't remove world part after building world";
-		while ( worldPart.parent == this )
-		{
-			worldPart.x = 0;
-			worldPart.y = 0;
-			removeChild( worldPart );
-		}
-		return worldPart;
 	}
 	
 	public function build():Void
 	{
 		if ( builded ) throw "can't rebuild world";
-		//var actives
-		/*for ( w in _worlds )
-		{
-			addEntities( w );
-		}*/
+		addEntities( this );
+		
 		builded = true;
 	}
 	
@@ -90,13 +169,21 @@ class World extends Sprite
 		{
 			switch ( target.name.charAt(1) )
 			{
-				case "p" : _entitiesGround.push( target );	// platform
-				case "w" : _entitiesGround.push( target );	// wall
-				case "s" : _spawnPoint = target;			// spawn point
-				case "e" : _entitiesItem.push( target );	// end point
-				case "b" : _entitiesItem.push( target );	// "bad"
+				case "p" : entitiesGround.push( target );	// platform
+				case "w" : entitiesGround.push( target );	// wall
+				case "s" : spawnPoint = target;				// spawn point
+				case "e" : entitiesItem.push( target );		// end point
+				case "b" : entitiesItem.push( target );		// "bad"
 			}
 		}
+		if ( target.name.charAt(0) == "s" )
+		{
+			switch ( target.name.charAt(1) )
+			{
+				case "n" : target.visible = false;
+			}
+		}
+		
 	}
 	
 	

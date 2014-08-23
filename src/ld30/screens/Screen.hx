@@ -9,7 +9,7 @@ import flash.display.Sprite;
 class Screen extends Sprite
 {
 
-	public var onChangeScreen:Screen->Void;
+	public dynamic function onChangeScreen(screen:Screen):Void { }
 	
 	public function new() 
 	{

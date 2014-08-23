@@ -43,6 +43,7 @@ class Main
 		
 		Lib.current.addChild( screen );
 		_screen = screen;
+		_screen.onChangeScreen = changeScreen;
 	}
 	
 }
