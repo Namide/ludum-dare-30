@@ -5,12 +5,12 @@
     <movie outputType="Application" />
     <movie input="" />
     <movie path="bin\ludumdare30.swf" />
-    <movie fps="30" />
-    <movie width="800" />
-    <movie height="600" />
-    <movie version="0" />
-    <movie minorVersion="1" />
-    <movie platform="JavaScript" />
+    <movie fps="25" />
+    <movie width="1280" />
+    <movie height="720" />
+    <movie version="11" />
+    <movie minorVersion="6" />
+    <movie platform="Flash Player" />
     <movie background="#FFFFFF" />
   </output>
   <!-- Other classes to be compiled into your SWF -->
@@ -34,9 +34,13 @@
   <compileTargets>
     <compile path="src\ld30\Main.hx" />
   </compileTargets>
+  <!-- Assets to embed into the output SWF -->
+  <library>
+    <asset path="assets\assets-01.swf" />
+  </library>
   <!-- Paths to exclude from the Project Explorer tree -->
   <hiddenPaths>
-    <!-- example: <hidden path="..." /> -->
+    <hidden path="obj" />
   </hiddenPaths>
   <!-- Executed before build -->
   <preBuildCommand />
