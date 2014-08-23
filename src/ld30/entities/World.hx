@@ -18,8 +18,6 @@ class World extends Sprite
 	
 	public var active(default, default):Player;
 	
-	var _container:Sprite = new Sprite();
-	
 	private var _cellX:Int;
 	private var _cellY:Int;
 	private var _cellW:Int;
@@ -35,22 +33,22 @@ class World extends Sprite
 		addWorldPart( bg );
 	}	
 	
-	public function addWorldPart( worldPart:MovieClip, i:Int = 0, j:Int = 0 ):Void
+	public function addWorldPart( worldPart:DisplayObjectContainer, i:Int = 0, j:Int = 0 ):Void
 	{
 		if ( builded ) throw "can't add world part after building world";
 		worldPart.x = i * _cellW;
 		worldPart.y = j * _cellH;
-		_container.addChild( worldPart );
+		addChild( worldPart );
 	}
 	
 	public function removeWorldPart( worldPart:MovieClip ):MovieClip
 	{
 		if ( builded ) throw "can't remove world part after building world";
-		while ( worldPart.parent == _container )
+		while ( worldPart.parent == this )
 		{
 			worldPart.x = 0;
 			worldPart.y = 0;
-			_container.removeChild( worldPart );
+			removeChild( worldPart );
 		}
 		return worldPart;
 	}
@@ -58,11 +56,11 @@ class World extends Sprite
 	public function build():Void
 	{
 		if ( builded ) throw "can't rebuild world";
-		var actives
-		for ( w in _worlds )
+		//var actives
+		/*for ( w in _worlds )
 		{
 			addEntities( w );
-		}
+		}*/
 		builded = true;
 	}
 	
