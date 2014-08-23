@@ -8,9 +8,9 @@ import flash.display.Sprite;
  * ...
  * @author namide.com
  */
-class World
+class World extends Sprite
 {
-	var _worlds:Array<DisplayObjectContainer> = [];
+	public var builded(default, default):Bool = false;
 	
 	var _entitiesGround:Array<DisplayObject> = [];
 	var _entitiesItem:Array<DisplayObject> = [];
@@ -18,43 +18,57 @@ class World
 	
 	public var active(default, default):Player;
 	
-	var _finalWorld:Sprite = new Sprite();
+	var _container:Sprite = new Sprite();
 	
 	private var _cellX:Int;
 	private var _cellY:Int;
 	private var _cellW:Int;
 	private var _cellH:Int;
 	
-	public function new( cellX:Int = 2, cellY:Int = 2, cellW:Int = 512, cellH:Int = 512 ) 
+	public function new( bg:DisplayObjectContainer, cellX:Int = 2, cellY:Int = 2, cellW:Int = 320, cellH:Int = 320 ) 
 	{
+		super();
 		_cellX = cellX;
 		_cellY = cellY;
 		_cellW = cellW;
 		_cellH = cellH;
+		addWorldPart( bg );
 	}	
 	
-	public function addWorld( world:MovieClip, x:Int, y:Int ):Void
+	public function addWorldPart( worldPart:MovieClip, i:Int = 0, j:Int = 0 ):Void
 	{
-		_worlds.push( world );
+		if ( builded ) throw "can't add world part after building world";
+		worldPart.x = i * _cellW;
+		worldPart.y = j * _cellH;
+		_container.addChild( worldPart );
 	}
 	
-	public function removeWorld( world:MovieClip ):Void
+	public function removeWorldPart( worldPart:MovieClip ):MovieClip
 	{
-		while ( _worlds.indexOf( world ) > -1 ) _worlds.remove( world );
+		if ( builded ) throw "can't remove world part after building world";
+		while ( worldPart.parent == _container )
+		{
+			worldPart.x = 0;
+			worldPart.y = 0;
+			_container.removeChild( worldPart );
+		}
+		return worldPart;
 	}
 	
 	public function build():Void
 	{
+		if ( builded ) throw "can't rebuild world";
 		var actives
 		for ( w in _worlds )
 		{
 			addEntities( w );
 		}
+		builded = true;
 	}
 	
 	public function refresh():Void
 	{
-		
+		if ( !builded ) throw "can't refresh before building world";
 	}
 	
 	public function dispose():Void
