@@ -20,7 +20,7 @@ import ld30.screens.Start;
 class Main 
 {
 	
-	public static var LEVEL_NUM:Int = 1;
+	public static var LEVEL_NUM:Int = 0;
 	static var _screen:Screen;
 	
 	static function main() 
