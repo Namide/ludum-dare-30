@@ -5,6 +5,7 @@ import flash.display.MovieClip;
 import flash.display.Sprite;
 import flash.geom.Point;
 import ld30.core.NumUtils;
+import ld30.screens.Play;
 
 /**
  * ...
@@ -29,6 +30,9 @@ class World extends Sprite
 	public var w(default, default):Int;
 	public var h(default, default):Int;
 	
+	public dynamic function onDead():Void { };
+	public dynamic function onEnd():Void { };
+	
 	public function new( bg:DisplayObjectContainer, cellX:Int = 2, cellY:Int = 2, cellW:Int = 320, cellH:Int = 320 ) 
 	{
 		super();
@@ -41,89 +45,85 @@ class World extends Sprite
 		addWorldPart( bg );
 	}	
 	
-	public function hitTest( player:Player ):Array<DisplayObject>
+	public function hitTest( player:Player ):Void
 	{
-		var l:Array<DisplayObject> = [];
-		var ha:DisplayObject = player.boundingBox;
+		//var l:Array<DisplayObject> = [];
+		var ha:DisplayObject = player.hitBox;
 		
 		var fromTop:Float = 0;
 		var fromBottom:Float = 0;
 		var fromLeft:Float = 0;
 		var fromRight:Float = 0;
 		
-		var aDelta:Point = new Point();
-		var bDelta:Point = new Point();
+		/*var aDelta:Point = new Point();
+		var bDelta:Point = new Point();*/
 		var min:Float;
-		var p:Point;
+		var p:Point = new Point();
 		for ( e in entitiesGround )
 		{
 			if ( ha.hitTestObject( e ) )
 			{
-				//deltaEdge.x = //(player.x < e.x) ?  : ;
-				
-				// a in top left of b
-				aDelta.x = _ITEM_MI_SIZE;
-				aDelta.y = _ITEM_MI_SIZE;
-				bDelta.x = -_ITEM_MI_SIZE;
-				bDelta.y = -_ITEM_MI_SIZE;
-				p = NumUtils.globalDelta( ha, e, aDelta, bDelta );
+				p.x = -_ITEM_MI_SIZE;
+				p.y = -_ITEM_MI_SIZE;
+				p = e.localToGlobal( p ).subtract( player.lastHitBoxGlobPos );
 				fromTop = p.y;
 				fromLeft = p.x;
 				
-				// a in bottom right of b
-				aDelta.x = -_ITEM_MI_SIZE;
-				aDelta.y = -_ITEM_MI_SIZE;
-				bDelta.x = _ITEM_MI_SIZE;
-				bDelta.y = _ITEM_MI_SIZE;
-				p = NumUtils.globalDelta( ha, e, aDelta, bDelta );
+				p.x = _ITEM_MI_SIZE;
+				p.y = _ITEM_MI_SIZE;
+				p = player.lastHitBoxGlobPos.subtract( e.localToGlobal( p ) );
 				fromBottom = p.y;
 				fromRight = p.x;
 				
-				min = Math.min( Math.min( fromTop, fromBottom ), Math.min( fromLeft, fromRight ) );
+				min = Math.POSITIVE_INFINITY;
+				if ( fromLeft >= 0 && fromLeft < min ) min = fromLeft;
+				if ( fromBottom >= 0 && fromBottom < min ) min = fromBottom;
+				if ( fromRight >= 0 && fromRight < min ) min = fromRight;
+				if ( fromTop >= 0 && fromTop < min ) min = fromTop;
 				
-				switch( min )
+				if (min == fromTop)
 				{
-					case fromTop :
-					case fromLeft :
-					case fromBottom :
-					case fromRight :
-				}
-				
-				/*if ( Math.abs(player.vY) > Math.abs(player.vX) )
-				{
-					if ( player.vY > 0 )
-					{
-						NumUtils.moveAtoB( player, e, new Point(0, -_ITEM_MI_SIZE), false, true );
-						player.onGround = true;
-					}
-					else
-					{
-						NumUtils.moveAtoB( player, e, new Point(0, player.height+_ITEM_MI_SIZE), false, true );
-					}
+					NumUtils.moveAtoB( player, e, new Point(0, -_ITEM_MI_SIZE), false, true );
+					player.onGround = true;
 					player.vY = 0;
 				}
-				else
+				else if (min == fromBottom)
 				{
-					if ( player.vX > 0 )
-					{
-						NumUtils.moveAtoB( player, e, new Point( -(player.width * 0.5 + _ITEM_MI_SIZE), 0 ), true, false );
-					}
-					else
-					{
-						NumUtils.moveAtoB( player, e, new Point( _ITEM_MI_SIZE + player.width * 0.5, 0 ), true, false );
-					}
+					NumUtils.moveAtoB( player, e, new Point(0, _ITEM_MI_SIZE), false, true );
+					//player.y += _ITEM_MI_SIZE + Play.GRAVITY;
+					player.vY = Play.GRAVITY;
+				}
+				else if (min == fromRight)
+				{
+					NumUtils.moveAtoB( player, e, new Point( _ITEM_MI_SIZE, 0 ), true, false );
+					player.x += _ITEM_MI_SIZE;
 					player.vX = 0;
-				}*/
+				}
+				else if (min == fromLeft)
+				{
+					NumUtils.moveAtoB( player, e, new Point( -_ITEM_MI_SIZE, 0 ), true, false );
+					player.x -= _ITEM_MI_SIZE;
+					player.vX = 0;
+				}
+				
 			}
 		}
 		for ( e in entitiesItem )
 		{
 			if ( ha.hitTestObject( e ) )
 			{
-				//l.push
+				var s:String = e.name.charAt(1);
+				if ( s == "e" )
+				{
+					onEnd();
+				}
+				else if ( s == "b" )
+				{
+					onDead();
+				}
 			}
 		}
-		return l;
+		//return l;
 	}
 	
 	public function addWorldPart( worldPart:DisplayObjectContainer, i:Int = 0, j:Int = 0 ):Void

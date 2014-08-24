@@ -82,6 +82,15 @@ class Build extends Screen
 		onChangeScreen( new Start() );
 	}
 	
+	public function getSolution()
+	{
+		_world.addWorldPart( _parts[0], 0, 1 );
+		_world.addWorldPart( _parts[1], 1, 1 );
+		_world.addWorldPart( _parts[2], 1, 0 );
+		_world.addWorldPart( _parts[3], 0, 0 );
+		startLevel();
+	}
+	
 	private function startLevel(e:Dynamic = null):Void
 	{
 		_startBtn.removeEventListener( MouseEvent.CLICK, startLevel );
@@ -140,6 +149,7 @@ class Build extends Screen
 		_instructions.visible = !_startBtn.visible;
 		
 	}
+	
 	
 	private function getLevelData(num:Int):Object
 	{
