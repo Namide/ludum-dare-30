@@ -6,6 +6,7 @@ import flash.geom.Point;
 import flash.Lib;
 import flash.ui.Keyboard;
 import ld30.core.KeyboardHandler;
+import ld30.sound.SoundManager;
 
 /**
  * ...
@@ -76,11 +77,13 @@ class Player extends Sprite
 		if ( dead )
 		{
 			if ( state != STATE_DEAD ) mc.gotoAndPlay( STATE_DEAD );
+			SoundManager.getInstance().play( "dead" );
 			return;
 		}
 		if ( win )
 		{
 			if ( state != STATE_WIN ) mc.gotoAndPlay( STATE_WIN );
+			SoundManager.getInstance().play( "win" );
 			return;
 		}
 		
@@ -98,6 +101,8 @@ class Player extends Sprite
 		{
 			state = nextState;
 			mc.gotoAndPlay( nextState );
+			//if ( state == STATE_JUMP ) 		SoundManager.getInstance().play( "jump" );
+			//else if ( state == STATE_RUN ) 	SoundManager.getInstance().play( "run" );
 		}
 		
 		var nextToRight:Bool;

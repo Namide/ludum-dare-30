@@ -96,14 +96,13 @@ class World extends Sprite
 	public function restart():Void
 	{
 		var build:Build = new Build( levelNum );
-		//changeScreen( build );
 		Main.changeScreen( build );
 		build.resumeSave( _save );
 	}
 	
+	private var _corner:Int = 0;
 	public function hitTest( player:Player ):Void
 	{
-		//var l:Array<DisplayObject> = [];
 		var ha:DisplayObject = player.hitBox;
 		
 		var fromTop:Float = 0;
@@ -111,8 +110,6 @@ class World extends Sprite
 		var fromLeft:Float = 0;
 		var fromRight:Float = 0;
 		
-		/*var aDelta:Point = new Point();
-		var bDelta:Point = new Point();*/
 		var min:Float;
 		var p:Point = new Point();
 		for ( e in entitiesGround )
@@ -137,15 +134,17 @@ class World extends Sprite
 				if ( fromRight >= 0 && fromRight < min ) min = fromRight;
 				if ( fromTop >= 0 && fromTop < min ) min = fromTop;
 				
+				// hack for corner bug
+				if ( _corner > 1 ) fromTop = min;
+				
 				if (min == fromTop)
 				{
 					NumUtils.moveAtoB( player, e, new Point(0, -_ITEM_MI_SIZE), false, true );
 					player.onGround = true;
 					player.vY = 0;
 					
-					// hack for corner bug
-					if ( fromTop == fromRight ) player.x += 5;
-					if ( fromTop == fromLeft ) player.x -= 5;
+					if ( _corner % 2 == 1 ) _corner++;
+					else  _corner = 0; 
 				}
 				else if (min == fromBottom)
 				{
@@ -157,12 +156,16 @@ class World extends Sprite
 					NumUtils.moveAtoB( player, e, new Point( _ITEM_MI_SIZE, 0 ), true, false );
 					player.x += _ITEM_MI_SIZE;
 					player.vX = 0;
+					if ( _corner % 2 == 0 ) _corner++;
+					else  _corner = 0; 
 				}
 				else if (min == fromLeft)
 				{
 					NumUtils.moveAtoB( player, e, new Point( -_ITEM_MI_SIZE, 0 ), true, false );
 					player.x -= _ITEM_MI_SIZE;
 					player.vX = 0;
+					if ( _corner % 2 == 0 ) _corner++;
+					else  _corner = 0; 
 				}
 				
 			}
