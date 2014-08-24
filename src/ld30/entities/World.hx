@@ -3,9 +3,47 @@ import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;
 import flash.display.MovieClip;
 import flash.display.Sprite;
+import flash.events.MouseEvent;
 import flash.geom.Point;
 import ld30.core.NumUtils;
+import ld30.screens.Build;
 import ld30.screens.Play;
+
+class SaveWorld
+{
+	public var level:Int;
+	public var partNames:Array<String>;
+	public var partI:Array<Int>;
+	public var partJ:Array<Int>;
+	
+	public function new( level:Int ) 
+	{
+		this.level = level;
+		partNames = [];
+		partI = [];
+		partJ = [];		
+	}
+	
+	public function addPart( name:String, i:Int, j:Int ):Void
+	{
+		var k:Int = partNames.indexOf( name );
+		if ( k < 0 ) k = partNames.length;
+		partNames[k] = name;
+		partI[k] = i;
+		partJ[k] = j;
+	}
+	
+	public inline function getIbyName( name ):Int
+	{
+		return partI[ partNames.indexOf( name ) ];
+	}
+	
+	public inline function getJbyName( name ):Int
+	{
+		return partJ[ partNames.indexOf( name ) ];
+	}
+	
+}
 
 /**
  * ...
@@ -24,26 +62,46 @@ class World extends Sprite
 	public var columns(default, null):Int;
 	public var lines(default, null):Int;
 	
+	public var levelNum(default, null):Int;
 	var _cellW:Int;
 	var _cellH:Int;
+	var _save:SaveWorld;
 	
 	public var w(default, default):Int;
 	public var h(default, default):Int;
 	
 	public dynamic function onDead():Void { };
-	public dynamic function onEnd():Void { };
+	public dynamic function onWin():Void { };
+	public dynamic function onRedraw(e:Dynamic):Void { };
+	public dynamic function onExit(e:Dynamic):Void { };
 	
-	public function new( bg:DisplayObjectContainer, cellX:Int = 2, cellY:Int = 2, cellW:Int = 320, cellH:Int = 320 ) 
+	public function new( bg:DisplayObjectContainer, cellX:Int = 2, cellY:Int = 2, cellW:Int = 320, cellH:Int = 320, levelNum:Int ) 
 	{
 		super();
+		this.levelNum = levelNum;
 		columns = cellX;
 		lines = cellY;
 		_cellW = cellW;
 		_cellH = cellH;
 		w = cellX * cellW;
 		h = cellY * cellH;
+		this.levelNum = levelNum;
+		_save = new SaveWorld( levelNum );
 		addWorldPart( bg );
+		
+		bg.getChildByName("redrawB").addEventListener( MouseEvent.CLICK, function(e:Dynamic):Void { onRedraw(e); } );
+		bg.getChildByName("exitB").addEventListener( MouseEvent.CLICK, function(e:Dynamic):Void { onExit(e); } );
+		
+		
 	}	
+	
+	public function restart():Void
+	{
+		var build:Build = new Build( levelNum );
+		//changeScreen( build );
+		Main.changeScreen( build );
+		build.resumeSave( _save );
+	}
 	
 	public function hitTest( player:Player ):Void
 	{
@@ -115,7 +173,7 @@ class World extends Sprite
 				var s:String = e.name.charAt(1);
 				if ( s == "e" )
 				{
-					onEnd();
+					onWin();
 				}
 				else if ( s == "b" )
 				{
@@ -125,7 +183,6 @@ class World extends Sprite
 		}
 		//return l;
 	}
-	
 	public function addWorldPart( worldPart:DisplayObjectContainer, i:Int = 0, j:Int = 0 ):Void
 	{
 		if ( builded ) throw "can't add world part after building world";
@@ -133,6 +190,9 @@ class World extends Sprite
 		worldPart.y = j * _cellH;
 		worldPart.scaleX = worldPart.scaleY = 1;
 		addChild( worldPart );
+		
+		//_save[worldPart.name] = [i, j];
+		_save.addPart( worldPart.name, i, j );
 	}
 	
 	public function build():Void

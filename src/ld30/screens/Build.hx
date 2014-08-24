@@ -38,7 +38,7 @@ class Build extends Screen
 	
 	private function initLevel( num:Int ):Void
 	{
-		var levelData:LevelDatas = getLevelData( num );
+		var levelData:LevelDatas = getLevelDatas()[num];
 		
 		var mc:MovieClip = Lib.attach( levelData.name );
 		addChild( mc );
@@ -50,7 +50,8 @@ class Build extends Screen
 							levelData.lines,
 							levelData.columns,
 							Math.round(levelData.width / levelData.columns),
-							Math.round(levelData.height / levelData.lines) );
+							Math.round(levelData.height / levelData.lines),
+							num );
 		
 		_world.x = worldPos.x;
 		_world.y = worldPos.y;
@@ -82,12 +83,14 @@ class Build extends Screen
 		onChangeScreen( new Start() );
 	}
 	
-	public function getSolution()
+	public function resumeSave( save:SaveWorld )
 	{
-		_world.addWorldPart( _parts[0], 0, 1 );
-		_world.addWorldPart( _parts[1], 1, 1 );
-		_world.addWorldPart( _parts[2], 1, 0 );
-		_world.addWorldPart( _parts[3], 0, 0 );
+		for ( part in _parts )
+		{
+			var name:String = part.name;
+			_world.addWorldPart( part, save.getIbyName(name), save.getJbyName(name) );
+			//_world.addWorldPart( part, save[name][0], save[name][1] );
+		}
 		startLevel();
 	}
 	
@@ -150,13 +153,15 @@ class Build extends Screen
 		
 	}
 	
-	
-	private function getLevelData(num:Int):Object
+	static function getLevelDatas():Array<Object>
 	{
 		var levelsData:Array<Object> = [];
-		levelsData[0] = new LevelDatas( "Level0MC", "b", ["w0", "w1", "w2", "w3"], "start", "leave", "compWorld", 2, 2, 640, 640 );				
-		
-		return levelsData[num];
+		levelsData[0] = new LevelDatas( "Level0MC", "b", ["w0", "w1", "w2", "w3"], "start", "leave", "compWorld", 2, 2, 640, 640 );
+		return levelsData;
+	}
+	public static inline function getLevelLength():Int
+	{
+		return getLevelDatas().length;
 	}
 }
 
