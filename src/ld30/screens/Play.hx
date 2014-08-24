@@ -44,6 +44,7 @@ class Play extends Screen
 		NumUtils.moveAtoB( _player, _world.spawnPoint );
 		
 		addEventListener( Event.ENTER_FRAME, refresh );
+		Lib.current.stage.focus = Lib.current.stage;
 	}
 	
 	function endScreen( nextLevel:Bool ):Void
@@ -112,7 +113,7 @@ class Play extends Screen
 	function win():Void
 	{
 		removeEventListener( Event.ENTER_FRAME, refresh );
-		_player.visible = false;
+		_player.win = true;
 		endScreen( true );
 	}
 	

@@ -18,6 +18,7 @@ class Player extends Sprite
 	public static inline var STATE_RUN:String = "run";
 	public static inline var STATE_JUMP:String = "jump";
 	public static inline var STATE_DEAD:String = "dead";
+	public static inline var STATE_WIN:String = "win";
 	
 	public var velOnGround(default, default):Float = 14;
 	public var velOnAir(default, default):Float = 8;
@@ -37,6 +38,13 @@ class Player extends Sprite
 	{
 		if ( val ) mc.gotoAndPlay( STATE_DEAD );
 		return dead = val;
+	}
+	
+	public var win(default, set):Bool = false;
+	function set_win( val:Bool ):Bool
+	{
+		if ( val ) mc.gotoAndPlay( STATE_WIN );
+		return win = val;
 	}
 	
 	public var lastHitBoxGlobPos:Point;
@@ -67,7 +75,12 @@ class Player extends Sprite
 	{
 		if ( dead )
 		{
-			mc.gotoAndPlay( STATE_DEAD );
+			if ( state != STATE_DEAD ) mc.gotoAndPlay( STATE_DEAD );
+			return;
+		}
+		if ( win )
+		{
+			if ( state != STATE_WIN ) mc.gotoAndPlay( STATE_WIN );
 			return;
 		}
 		

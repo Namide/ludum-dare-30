@@ -29,6 +29,8 @@ class Build extends Screen
 	var _leaveBtn:DisplayObject;
 	var _instructions:DisplayObject;
 	
+	var _levelData:LevelDatas;
+	
 	public function new( num:Int = 0 ) 
 	{
 		super();
@@ -38,19 +40,19 @@ class Build extends Screen
 	
 	private function initLevel( num:Int ):Void
 	{
-		var levelData:LevelDatas = getLevelDatas()[num];
+		_levelData = getLevelDatas()[num];
 		
-		var mc:MovieClip = Lib.attach( levelData.name );
+		var mc:MovieClip = Lib.attach( _levelData.name );
 		addChild( mc );
 		
-		var bg:DisplayObjectContainer = cast( mc.getChildByName( levelData.bg ), DisplayObjectContainer );
+		var bg:DisplayObjectContainer = cast( mc.getChildByName( _levelData.bg ), DisplayObjectContainer );
 		
 		var worldPos:Rectangle = new Rectangle( bg.x, bg.y, bg.scaleX, bg.scaleY );
 		_world = new World( bg,
-							levelData.lines,
-							levelData.columns,
-							Math.round(levelData.width / levelData.columns),
-							Math.round(levelData.height / levelData.lines),
+							_levelData.lines,
+							_levelData.columns,
+							Math.round(_levelData.width / _levelData.columns),
+							Math.round(_levelData.height / _levelData.lines),
 							num );
 		
 		_world.x = worldPos.x;
@@ -60,7 +62,7 @@ class Build extends Screen
 		
 		addChildAt( _world, 0 );
 		
-		for ( s in levelData.worlds )
+		for ( s in _levelData.worlds )
 		{
 			var part:DisplayObjectContainer = cast( mc.getChildByName(s), DisplayObjectContainer );
 			_partInitScale = part.scaleX;
@@ -69,9 +71,9 @@ class Build extends Screen
 			_parts.push( part );
 		}
 		
-		_startBtn = mc.getChildByName( levelData.start );
-		_leaveBtn = mc.getChildByName( levelData.leave );
-		_instructions = mc.getChildByName( levelData.instructions );
+		_startBtn = mc.getChildByName( _levelData.start );
+		_leaveBtn = mc.getChildByName( _levelData.leave );
+		_instructions = mc.getChildByName( _levelData.instructions );
 		_startBtn.addEventListener( MouseEvent.CLICK, startLevel );
 		_leaveBtn.addEventListener( MouseEvent.CLICK, leave );
 		_startBtn.visible = false;
@@ -129,11 +131,10 @@ class Build extends Screen
 		if (	_world.mouseX > 0 && _world.mouseX < _world.w &&
 				_world.mouseY > 0 && _world.mouseY < _world.h )
 		{
-			var i:Int = Math.ceil( Math.round( (_world.mouseX / _world.w ) * (_world.columns-1) ) / (_world.columns-1) );
-			var j:Int = Math.ceil( Math.round( (_world.mouseY / _world.h ) * (_world.lines-1) ) / (_world.lines-1) );
+			var i:Int = Math.floor( (_world.mouseX / _world.w ) * (_world.columns) );
+			var j:Int = Math.floor( (_world.mouseY / _world.h ) * (_world.lines) );
 			i = NumUtils.minMax( i, 0, _world.columns - 1 );
 			j = NumUtils.minMax( j, 0, _world.lines - 1 );
-			
 			if ( _partParent != _world ) _partsBuild++;
 			_world.addWorldPart( _partDragged, i, j );
 		}
@@ -148,7 +149,7 @@ class Build extends Screen
 			_partDragged.y = mouseY - _partDragged.height * 0.5;
 		}
 		
-		_startBtn.visible = (_partsBuild >= _world.columns * _world.lines);
+		_startBtn.visible = ( _partsBuild >= _levelData.worlds.length );
 		_instructions.visible = !_startBtn.visible;
 		
 	}
@@ -157,6 +158,7 @@ class Build extends Screen
 	{
 		var levelsData:Array<Object> = [];
 		levelsData[0] = new LevelDatas( "Level0MC", "b", ["w0", "w1", "w2", "w3"], "start", "leave", "compWorld", 2, 2, 640, 640 );
+		levelsData[1] = new LevelDatas( "Level1MC", "b", ["p0", "p1", "p2"], "start", "leave", "compWorld", 3, 3, 630, 630 );
 		return levelsData;
 	}
 	public static inline function getLevelLength():Int

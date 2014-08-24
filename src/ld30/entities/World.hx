@@ -91,8 +91,6 @@ class World extends Sprite
 		
 		bg.getChildByName("redrawB").addEventListener( MouseEvent.CLICK, function(e:Dynamic):Void { onRedraw(e); } );
 		bg.getChildByName("exitB").addEventListener( MouseEvent.CLICK, function(e:Dynamic):Void { onExit(e); } );
-		
-		
 	}	
 	
 	public function restart():Void
@@ -144,11 +142,14 @@ class World extends Sprite
 					NumUtils.moveAtoB( player, e, new Point(0, -_ITEM_MI_SIZE), false, true );
 					player.onGround = true;
 					player.vY = 0;
+					
+					// hack for corner bug
+					if ( fromTop == fromRight ) player.x += 5;
+					if ( fromTop == fromLeft ) player.x -= 5;
 				}
 				else if (min == fromBottom)
 				{
 					NumUtils.moveAtoB( player, e, new Point(0, _ITEM_MI_SIZE), false, true );
-					//player.y += _ITEM_MI_SIZE + Play.GRAVITY;
 					player.vY = Play.GRAVITY;
 				}
 				else if (min == fromRight)

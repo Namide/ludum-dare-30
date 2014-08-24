@@ -20,7 +20,7 @@ import ld30.screens.Start;
 class Main 
 {
 	
-	public static var LEVEL_NUM:Int = 0;
+	public static var LEVEL_NUM:Int = 1;
 	static var _screen:Screen;
 	
 	static function main() 
@@ -30,11 +30,6 @@ class Main
 		stage.align = StageAlign.TOP_LEFT;
 		
 		KeyboardHandler.getInstance().init( Lib.current.stage );
-		//KeyboardHandler.getInstance().onRelease = function( key:UInt ):Void { trace(key); };
-		
-		/*var build:Build = new Build( LEVEL_NUM );
-		changeScreen( build );*/
-		//build.getSolution();
 		changeScreen( new Start() );
 		
 		Lib.current.stage.addEventListener( Event.RESIZE, onResize );
@@ -56,11 +51,8 @@ class Main
 	
 	private static function onResize(e:Dynamic = null):Void
 	{
-		trace(1);
-		
 		var stage:Stage = Lib.current.stage;
 		var current:DisplayObject = Lib.current;
-		//var newWidth:Int = 1024;
 		var prop:Float = 1280 / 720;
 		var sProp:Float = stage.stageWidth / stage.stageHeight;
 		

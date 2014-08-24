@@ -30,7 +30,7 @@ class Start extends Screen
 	{
 		startBtn.removeEventListener( MouseEvent.CLICK, startGame );
 		startBtn = null;
-		onChangeScreen( new Build() );
+		onChangeScreen( new Build( Main.LEVEL_NUM ) );
 	}
 	
 	
