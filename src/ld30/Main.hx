@@ -8,6 +8,7 @@ import ld30.entities.Player;
 import ld30.entities.World;
 import ld30.screens.Build;
 import ld30.screens.Screen;
+import ld30.screens.Start;
 
 /**
  * ...
@@ -16,6 +17,7 @@ import ld30.screens.Screen;
 class Main 
 {
 	
+	public static var LEVEL_NUM:Int = 0;
 	static var _screen:Screen;
 	
 	static function main() 
@@ -27,9 +29,10 @@ class Main
 		KeyboardHandler.getInstance().init( Lib.current.stage );
 		//KeyboardHandler.getInstance().onRelease = function( key:UInt ):Void { trace(key); };
 		
-		var build:Build = new Build(0);
-		changeScreen( build );
+		/*var build:Build = new Build( LEVEL_NUM );
+		changeScreen( build );*/
 		//build.getSolution();
+		changeScreen( new Start() );
 	}
 	
 	static function changeScreen(screen:Screen):Void
