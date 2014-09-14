@@ -101,6 +101,7 @@ class World extends Sprite
 	}
 	
 	private var _corner:Int = 0;
+	private var _cornerLast:DisplayObject = null;
 	public function hitTest( player:Player ):Void
 	{
 		var ha:DisplayObject = player.hitBox;
@@ -135,7 +136,7 @@ class World extends Sprite
 				if ( fromTop >= 0 && fromTop < min ) min = fromTop;
 				
 				// hack for corner bug
-				if ( _corner > 1 ) fromTop = min;
+				if ( _corner > 1 ) min = fromTop;
 				
 				if (min == fromTop)
 				{
@@ -143,20 +144,22 @@ class World extends Sprite
 					player.onGround = true;
 					player.vY = 0;
 					
-					if ( _corner % 2 == 1 ) _corner++;
+					if ( _corner % 2 == 1 && _cornerLast == e ) _corner++;
 					else  _corner = 0; 
 				}
 				else if (min == fromBottom)
 				{
 					NumUtils.moveAtoB( player, e, new Point(0, _ITEM_MI_SIZE), false, true );
 					player.vY = Play.GRAVITY;
+					
+					_corner = 0; 
 				}
 				else if (min == fromRight)
 				{
 					NumUtils.moveAtoB( player, e, new Point( _ITEM_MI_SIZE, 0 ), true, false );
 					player.x += _ITEM_MI_SIZE;
 					player.vX = 0;
-					if ( _corner % 2 == 0 ) _corner++;
+					if ( _corner % 2 == 0 && _cornerLast == e ) _corner++;
 					else  _corner = 0; 
 				}
 				else if (min == fromLeft)
@@ -164,10 +167,10 @@ class World extends Sprite
 					NumUtils.moveAtoB( player, e, new Point( -_ITEM_MI_SIZE, 0 ), true, false );
 					player.x -= _ITEM_MI_SIZE;
 					player.vX = 0;
-					if ( _corner % 2 == 0 ) _corner++;
+					if ( _corner % 2 == 0 && _cornerLast == e ) _corner++;
 					else  _corner = 0; 
 				}
-				
+				_cornerLast = e;
 			}
 		}
 		for ( e in entitiesItem )
